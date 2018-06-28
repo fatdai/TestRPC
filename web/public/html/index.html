@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        .login{
+            margin: 200px 200px auto auto;
+            width: 200px;
+            height: 200px;
+            position: center;
+        }
+
+        body{
+            width: 640px;
+            height: 480px;
+            border: 1px solid red;
+        }
+
+        #loginBtn{
+            width: 100px;
+            height: 40px;
+        }
+    </style>
+    <script type="text/javascript" src="bundle.js"></script>
+</head>
+<body>
+<div id="loginDiv" class="login">
+    <!--登陆-->
+    账号:<input type="text" name="userName" id="userName"><br/>
+    密码:<input type="text" name="pwd" id="pwd"><br/>
+    <button id="loginBtn">登陆</button>
+</div>
+<div id="gameDiv">
+    <canvas id="game" style="border: 1px solid"></canvas>
+</div>
+<!--<button onclick="connet();">点击连接服务器</button>-->
+<!--<button onclick="server_add();">点击调用 server_add 方法</button>-->
+<!--<button onclick="server_sub();">点击调用 server_sub 方法</button>-->
+<!--<button onclick="my_print();">点击调用 my_print 方法</button>-->
+
+</body>
+</html>
