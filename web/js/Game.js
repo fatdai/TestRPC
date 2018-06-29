@@ -54,6 +54,16 @@ class Game{
 
         canvas.width = this.width;
         canvas.height = this.height;
+        
+        canvas.onmousedown = function () {
+            
+        };
+        canvas.onmouseup = function () {
+            
+        };
+        canvas.onmousemove = function () {
+            
+        };
     }
 
     // 登陆
