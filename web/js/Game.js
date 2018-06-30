@@ -4,6 +4,8 @@ var PrimitiveDraw = require('./PrimitiveDraw');
 var NetManager = require('./NetManager');
 var LoadingScene = require('./logic/LoadingScene');
 
+var MouseEvent = require('./framework/MouseEvent');
+
 // var SceneManager = require('./SceneManager');
 
 // 全局变量
@@ -54,16 +56,10 @@ class Game{
 
         canvas.width = this.width;
         canvas.height = this.height;
-        
-        canvas.onmousedown = function () {
-            
-        };
-        canvas.onmouseup = function () {
-            
-        };
-        canvas.onmousemove = function () {
-            
-        };
+
+        canvas.onmousedown = MouseEvent.mouseDown.bind(this);
+        canvas.onmousemove = MouseEvent.mouseMove.bind(this);
+        canvas.onmouseup = MouseEvent.mouseUp.bind(this);
     }
 
     // 登陆

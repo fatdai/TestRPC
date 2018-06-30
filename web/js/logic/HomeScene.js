@@ -1,6 +1,10 @@
 var Scene = require('../Scene');
 var Loader = require('../framework/Loader');
 
+
+
+
+
 class HomeScene{
 
     constructor(game){
