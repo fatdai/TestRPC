@@ -25,23 +25,26 @@ MouseEvent.removeNode = function (node) {
 };
 
 MouseEvent.mouseDown = function () {
-    for(var i = 0; i < MouseEvent.events.length; ++i){
-        if(typeof MouseEvent.events[i].mouseDown == 'function') {
-            MouseEvent.events[i].mouseDown();
+    var args = [].slice.call(arguments,0);
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(typeof MouseEvent.nodes[i].mouseDown == 'function') {
+            MouseEvent.nodes[i].mouseDown.apply(MouseEvent.nodes[i],args);
         }
     }
 };
 MouseEvent.mouseUp = function () {
-    for(var i = 0; i < MouseEvent.events.length; ++i){
-        if(typeof MouseEvent.events[i].mouseUp == 'function') {
-            MouseEvent.events[i].mouseUp();
+    var args = [].slice.call(arguments,0);
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(typeof MouseEvent.nodes[i].mouseUp == 'function') {
+            MouseEvent.nodes[i].mouseUp.apply(MouseEvent.nodes[i],args);
         }
     }
 };
 MouseEvent.mouseMove = function () {
-    for(var i = 0; i < MouseEvent.events.length; ++i){
-        if(typeof MouseEvent.events[i].mouseMove == 'function') {
-            MouseEvent.events[i].mouseMove();
+    var args = [].slice.call(arguments,0);
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(typeof MouseEvent.nodes[i].mouseMove == 'function') {
+            MouseEvent.nodes[i].mouseMove.apply(MouseEvent.nodes[i],args);
         }
     }
 };

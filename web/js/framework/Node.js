@@ -15,6 +15,20 @@ class Node{
         this.scaleY = 1.0;
         this.anchorX  = 0; // 锚点,默认为0,0
         this.anchorY = 0;
+        this.width = 0;
+        this.height = 0;
+    }
+
+    setPosition(x,y){
+        this.x = x;
+        this.y = y;
+    }
+    setScale(sx,sy){
+        this.scaleX = sx;
+        this.scaleY = sy;
+    }
+    setRotate(angle){
+        this.angle = angle;
     }
 
     addChild(node){
@@ -46,14 +60,35 @@ class Node{
         }
     }
 
-
     // render and update
     render(context){
 
+        // 先绘制自己,再绘制子节点
+        if(typeof  this.renderSelf == 'function'){
+            this.updateSelf();
+        }
+        this.renderChildren(context);
+    }
+
+    renderChildren(context){
+        for(var i = 0,len = this.children.length; i < len; ++i){
+            if(typeof this.children[i].render == 'function'){
+                this.children[i].render(context);
+            }
+        }
     }
 
     update(){
-        
+        // 先更新自己？再更新子节点
+        if(typeof this.updateSelf == 'function'){
+            this.updateSelf();
+        }
+
+        for(var i = 0,len = this.children.length; i < len; ++i){
+            if(typeof this.children[i].update == 'function'){
+                this.children[i].update();
+            }
+        }
     }
 
 }

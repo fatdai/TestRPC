@@ -110,6 +110,8 @@ var PrimitiveDraw = __webpack_require__(3);
 var NetManager = __webpack_require__(4);
 var LoadingScene = __webpack_require__(7);
 
+var MouseEvent = __webpack_require__(17);
+
 // var SceneManager = require('./SceneManager');
 
 // 全局变量
@@ -160,6 +162,10 @@ class Game{
 
         canvas.width = this.width;
         canvas.height = this.height;
+
+        canvas.onmousedown = MouseEvent.mouseDown.bind(this);
+        canvas.onmousemove = MouseEvent.mouseMove.bind(this);
+        canvas.onmouseup = MouseEvent.mouseUp.bind(this);
     }
 
     // 登陆
@@ -605,27 +611,44 @@ module.exports = res;
 
 var Scene = __webpack_require__(12);
 var Loader = __webpack_require__(8);
+var Button = __webpack_require__(13);
+var Node = __webpack_require__(14);
+
+var Sprite = __webpack_require__(16);
+var MouseEvent = __webpack_require__(17);
 
 class HomeScene{
 
     constructor(game){
         this.game = game;
+        this.root = new Node();
+    }
+
+    enter(){
+        var btn = Button.makeTextButton('你这个小表渣');
+        btn.setPosition(100,100);
+        this.root.addChild(btn);
+
+        var btn2 = Button.makeImageButton(Loader.getImage('desk'));
+        btn2.setPosition(200,200);
+        this.root.addChild(btn2);
+
+        btn2.setScale(2,2);
+        btn2.setRotate(10);
+
+        // 大图片下面放小图片
+        var sp = new Sprite(Loader.getImage('bird1'));
+        sp.setPosition(20,0);
+        btn2.addChild(sp);
+
+        MouseEvent.addNode(btn2);
     }
 
     render(context){
-        context.restore();
-        // console.log('homeScene called!');
-        // 绘制一行文字
-        context.fillStyle = '#0000ff';
-        context.font = '30px Arial';
-        context.textAlign = 'center';
-        context.fillText('Hello World',100,100);
-        // context.fillRect(0,0,200,200);
-
-        context.drawImage(Loader.getImage('bird1'),0,0);
+        this.root.render(context);
     }
     update(){
-
+        this.root.update();
     }
 }
 
@@ -642,6 +665,314 @@ class Scene{
 }
 
 module.exports = Scene;
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var Node = __webpack_require__(14);
+
+
+class Button extends Node{
+
+    constructor(){
+        super();
+        this.text = '';
+        this.textColor = '#ffff00';
+        this.img = null;
+
+        this.anchorX = 0.5;
+        this.anchorY = 0.5;
+    }
+
+    renderSelf(context){
+        if(this.img == null){
+            context.textAlign = 'center';
+            context.font = '20px Arial';
+            this.width = context.measureText(this.text).width;
+            this.height = 35;
+        }
+
+        // for debug
+        context.fillStyle = '#00ff00';
+        context.fillRect(0,0,200,200);
+
+        context.translate(this.x,this.y);
+        context.scale(this.scaleX,this.scaleY);
+
+        // context.translate(this.anchorX * this.width,this.anchorY * this.height);
+        context.rotate(Math.PI/this.angle);
+        if(this.img == null){
+            context.fillStyle = '#cccccc';
+            context.fillRect(-this.anchorX * this.width,-this.anchorY * this.height,this.width,this.height);
+
+            context.fillStyle = this.textColor;
+            context.fillText(this.text,0,6);
+        }else{
+            context.drawImage(this.img,-this.anchorX * this.width,-this.anchorY * this.height);
+        }
+        //context.translate(-this.anchorX * this.width,-this.anchorY * this.height);
+    }
+
+    render(context){
+        context.save();
+        this.renderSelf(context);
+        this.renderChildren(context);
+        context.restore();
+    }
+
+    setClickListener(cb){
+
+    }
+
+
+    static makeTextButton(text,textColor){
+        var btn = new Button();
+        btn.text = text;
+        btn.textColor = textColor || btn.textColor;
+        return btn;
+    }
+
+    static makeImageButton(img){
+        var btn = new Button();
+        btn.img = img;
+        btn.width = img.width;
+        btn.height = img.height;
+        return btn;
+    }
+
+    mouseDown(){
+        console.log(arguments);
+    }
+
+}
+
+// usage:
+// var btn = new Button('btn1');
+// btn.setClickListener(xx);
+// xxx.add();
+
+module.exports = Button;
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var Utils = __webpack_require__(15);
+
+class Node{
+
+    constructor(){
+        this.children = [];
+        this.parent = null;
+
+        // 在父元素里面的坐标
+        this.x = 0;
+        this.y = 0;
+        this.angle = 0;
+        this.scaleX = 1.0;
+        this.scaleY = 1.0;
+        this.anchorX  = 0; // 锚点,默认为0,0
+        this.anchorY = 0;
+        this.width = 0;
+        this.height = 0;
+    }
+
+    setPosition(x,y){
+        this.x = x;
+        this.y = y;
+    }
+    setScale(sx,sy){
+        this.scaleX = sx;
+        this.scaleY = sy;
+    }
+    setRotate(angle){
+        this.angle = angle;
+    }
+
+    addChild(node){
+        if(node.parent != null){
+            console.log('node alread has parent!');
+            return;
+        }
+
+        this.children.push(node);
+        node.parent = this;
+    }
+
+    // node 必须为当前元素的子元素
+    removeChild(node){
+        for(var i = 0,len = this.children.length; i < len; ++i){
+            if(this.children[i] == node){
+                this.children.splice(i,1);
+                node.parent = null;
+                return;
+            }
+        }
+    }
+
+    removeFromParent(){
+        if(this.parent != null){
+            this.parent.removeChild(this);
+        }else{
+            this.children = [];
+        }
+    }
+
+    // render and update
+    render(context){
+
+        // 先绘制自己,再绘制子节点
+        if(typeof  this.renderSelf == 'function'){
+            this.updateSelf();
+        }
+        this.renderChildren(context);
+    }
+
+    renderChildren(context){
+        for(var i = 0,len = this.children.length; i < len; ++i){
+            if(typeof this.children[i].render == 'function'){
+                this.children[i].render(context);
+            }
+        }
+    }
+
+    update(){
+        // 先更新自己？再更新子节点
+        if(typeof this.updateSelf == 'function'){
+            this.updateSelf();
+        }
+
+        for(var i = 0,len = this.children.length; i < len; ++i){
+            if(typeof this.children[i].update == 'function'){
+                this.children[i].update();
+            }
+        }
+    }
+
+}
+
+module.exports = Node;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports) {
+
+
+
+var Utils = {};
+
+// 判断元素 value 是否在 arr数组里面
+Utils.valueInArray = function (arr,value) {
+    if(!(arr instanceof Array)){
+        console.log('arr is not Array!');
+        return false;
+    }
+
+    for(var i = 0,len = arr.length; i < len; ++i){
+        if(arr[i] == value){
+            return true;
+        }
+    }
+    return false;
+};
+
+module.exports = Utils;
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var Node = __webpack_require__(14);
+
+class Sprite extends Node{
+    constructor(img){
+        super();
+        this.img = img;
+        this.width = img.width;
+        this.height = img.height;
+        this.anchorX = 0.5;
+        this.anchorY = 0.5;
+    }
+
+
+    renderSelf(context){
+        context.translate(this.x,this.y);
+        context.drawImage(this.img,-this.width*this.anchorX,-this.height*this.anchorY);
+    }
+
+    render(context){
+        context.save();
+        this.renderSelf(context);
+        this.renderChildren(context);
+        context.restore();
+    }
+
+}
+
+module.exports = Sprite;
+
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports) {
+
+
+// var EventManager = require('./EventManager');
+// EventManager.mouseEvent = new EventManager();
+
+var MouseEvent = {};
+MouseEvent.nodes = [];
+
+MouseEvent.addNode = function (node) {
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(MouseEvent.nodes[i] == node){
+            return;
+        }
+    }
+
+    MouseEvent.nodes.push(node);
+};
+
+MouseEvent.removeNode = function (node) {
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(MouseEvent.nodes[i] == node){
+            MouseEvent.nodes.splice(i,1);
+            return;
+        }
+    }
+};
+
+MouseEvent.mouseDown = function () {
+    var args = [].slice.call(arguments,0);
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(typeof MouseEvent.nodes[i].mouseDown == 'function') {
+            MouseEvent.nodes[i].mouseDown.apply(MouseEvent.nodes[i],args);
+        }
+    }
+};
+MouseEvent.mouseUp = function () {
+    var args = [].slice.call(arguments,0);
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(typeof MouseEvent.nodes[i].mouseUp == 'function') {
+            MouseEvent.nodes[i].mouseUp.apply(MouseEvent.nodes[i],args);
+        }
+    }
+};
+MouseEvent.mouseMove = function () {
+    var args = [].slice.call(arguments,0);
+    for(var i = 0; i < MouseEvent.nodes.length; ++i){
+        if(typeof MouseEvent.nodes[i].mouseMove == 'function') {
+            MouseEvent.nodes[i].mouseMove.apply(MouseEvent.nodes[i],args);
+        }
+    }
+};
+
+
+module.exports = MouseEvent;
 
 /***/ })
 /******/ ]);
